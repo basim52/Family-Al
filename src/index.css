@@ -1,0 +1,52 @@
+@import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Cairo:wght@300;400;500;600;700;800;900&family=Tajawal:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Cairo", "Tajawal", system-ui, -apple-system, sans-serif;
+  --font-serif: "Amiri", Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, sans-serif;
+
+  --color-natural-bg: #F9F7F2;
+  --color-natural-text: #3D3D33;
+  --color-natural-moss: #5A5A40;
+  --color-natural-moss-hover: #494933;
+  --color-natural-moss-dark: #3B3B29;
+  --color-natural-moss-light: #F0F0E6;
+  --color-natural-bronze: #A67C52;
+  --color-natural-bronze-hover: #8F6740;
+  --color-natural-bronze-light: #FDF1E6;
+  --color-natural-stone: #D6CFC1;
+  --color-natural-stone-light: #F5F2ED;
+  --color-natural-border: #E8E4D9;
+  --color-natural-muted: #8E8E82;
+  --color-natural-cream: #F5F2ED;
+}
+
+:root {
+  --font-sans: "Cairo", "Tajawal", system-ui, -apple-system, sans-serif;
+  --font-serif: "Amiri", Georgia, serif;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: #F9F7F2; /* Warm linen canvas background */
+  color: #3D3D33; /* Deep olive charcoal */
+  direction: rtl; /* Standard RTL flow for Arabic interfaces */
+}
+
+/* Custom gorgeous scrollbar for clean UI feel */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #D6CFC1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #A67C52;
+}
+

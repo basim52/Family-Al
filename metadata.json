@@ -1,0 +1,6 @@
+{
+  "name": "إدارة مشاريع بيت العائلة",
+  "description": "برنامج متكامل لإدارة مشاريع بيت العائلة والتحضير لها من صيانة وتحسينات وزوايا عائلية ومناسبات ومشتريات، مع مستشار ذكاء اصطناعي للمساعدة في وضع الميزانيات والمهام.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
