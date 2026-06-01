@@ -46,16 +46,39 @@ export default function App() {
   const [authLoading, setAuthLoading] = useState(true);
   const [isCloudMode, setIsCloudMode] = useState(false);
   const [isBootstrapping, setIsBootstrapping] = useState(false);
-  const [isGuestMode, setIsGuestMode] = useState(false);
+  const [isGuestMode, setIsGuestMode] = useState<boolean>(() => {
+    return localStorage.getItem('is_guest_mode') === 'true';
+  });
 
   // Core state synced with LocalStorage for durable local persistence or loaded from Firestore
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [notices, setNotices] = useState<Notice[]>([]);
-  const [members, setMembers] = useState<string[]>([]);
-  const [devPlans, setDevPlans] = useState<DevelopmentPlan[]>([]);
-  const [vaultTransactions, setVaultTransactions] = useState<VaultTransaction[]>([]);
+  const [projects, setProjects] = useState<Project[]>(() => {
+    const saved = localStorage.getItem('family_projects');
+    return saved ? JSON.parse(saved) : INITIAL_PROJECTS;
+  });
+  const [tasks, setTasks] = useState<Task[]>(() => {
+    const saved = localStorage.getItem('family_tasks');
+    return saved ? JSON.parse(saved) : INITIAL_TASKS;
+  });
+  const [expenses, setExpenses] = useState<Expense[]>(() => {
+    const saved = localStorage.getItem('family_expenses');
+    return saved ? JSON.parse(saved) : INITIAL_EXPENSES;
+  });
+  const [notices, setNotices] = useState<Notice[]>(() => {
+    const saved = localStorage.getItem('family_notices');
+    return saved ? JSON.parse(saved) : INITIAL_NOTICES;
+  });
+  const [members, setMembers] = useState<string[]>(() => {
+    const saved = localStorage.getItem('family_members');
+    return saved ? JSON.parse(saved) : INITIAL_MEMBERS;
+  });
+  const [devPlans, setDevPlans] = useState<DevelopmentPlan[]>(() => {
+    const saved = localStorage.getItem('family_dev_plans');
+    return saved ? JSON.parse(saved) : INITIAL_DEV_PLANS;
+  });
+  const [vaultTransactions, setVaultTransactions] = useState<VaultTransaction[]>(() => {
+    const saved = localStorage.getItem('family_vault_transactions');
+    return saved ? JSON.parse(saved) : INITIAL_VAULT_TRANSACTIONS;
+  });
 
   // Modals state
   const [isCreatingProject, setIsCreatingProject] = useState(false);
@@ -133,6 +156,7 @@ export default function App() {
       setUser(null);
       setIsCloudMode(false);
       setIsGuestMode(false);
+      localStorage.removeItem('is_guest_mode');
     } catch (e) {
       console.error("Sign out error:", e);
     }
@@ -141,6 +165,7 @@ export default function App() {
   const handleEnterAsGuest = () => {
     setIsGuestMode(true);
     setIsCloudMode(false);
+    localStorage.setItem('is_guest_mode', 'true');
     // Force immediate local storage restore
     const savedProjects = localStorage.getItem('family_projects');
     const savedTasks = localStorage.getItem('family_tasks');
@@ -179,6 +204,7 @@ export default function App() {
         setUser(currentUser);
         setIsCloudMode(true);
         setIsGuestMode(false);
+        localStorage.removeItem('is_guest_mode');
 
         // Subscribe to all Collections with real-time onSnapshot synchronization
         const unsubProjects = onSnapshot(collection(db, 'projects'), async (snapshot) => {
