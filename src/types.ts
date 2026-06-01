@@ -62,7 +62,7 @@ export interface DevelopmentPlan {
   status: 'studying' | 'approved' | 'deferred';
   category: string;
   createdAt: string;
-  aiFeasibility?: {
+  feasibility?: {
     score: number;
     effort: 'high' | 'medium' | 'low';
     steps: string[];
@@ -70,4 +70,17 @@ export interface DevelopmentPlan {
     cons: string[];
     verdict: string;
   };
+}
+
+export type VaultTransactionType = 'spend' | 'payment' | 'deposit';
+
+export interface VaultTransaction {
+  id: string;
+  type: VaultTransactionType;
+  amount: number;
+  member: string;
+  description: string;
+  date: string;
+  voucherNumber: string;
+  projectId?: string;
 }

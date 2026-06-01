@@ -66,6 +66,7 @@ export default function ReportExporter({
         cacheBust: true,
         quality: 0.98,
         pixelRatio: 2, // High resolution
+        backgroundColor: '#ffffff', // Ensures solid background without transparent corners or borders, eliminating dark background quirks in third-party messaging apps
         style: {
           transform: 'scale(1)',
           transformOrigin: 'top left',

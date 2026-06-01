@@ -1,4 +1,4 @@
-import { Project, Task, Expense, Notice, DevelopmentPlan } from "./types";
+import { Project, Task, Expense, Notice, DevelopmentPlan, VaultTransaction } from "./types";
 
 export const INITIAL_MEMBERS = [
   "الوالد (أبو باسم)",
@@ -325,6 +325,56 @@ export const INITIAL_DEV_PLANS: DevelopmentPlan[] = [
     status: "studying",
     category: "توسعة وبناء رفاهية",
     createdAt: "2026-05-30"
+  }
+];
+
+export const INITIAL_VAULT_TRANSACTIONS: VaultTransaction[] = [
+  {
+    id: "vtx-1",
+    type: "deposit",
+    amount: 10000,
+    member: "الوالد (أبو باسم)",
+    description: "البدء الفعلي لتأسيس خزانة صندوق العائلة الكبير وتفعيل البنك العائلي للرعاية والصيانات",
+    date: "2026-05-10",
+    voucherNumber: "V-1001"
+  },
+  {
+    id: "vtx-2",
+    type: "deposit",
+    amount: 3000,
+    member: "العم أبو فهد",
+    description: "مساهمة داعمة للخزانة لتغطية ميزانية مشاريع الربع الثاني والثالث المخطط لها",
+    date: "2026-05-12",
+    voucherNumber: "V-1002"
+  },
+  {
+    id: "vtx-3",
+    type: "spend",
+    amount: 1850,
+    member: "الوالد (أبو باسم)",
+    description: "سند صرف لتغطية الدفعة الأولى من فاتورة عازل أسطح البيت قبل حلول موسم المطر",
+    date: "2026-05-16",
+    voucherNumber: "V-1003",
+    projectId: "proj-1"
+  },
+  {
+    id: "vtx-4",
+    type: "payment",
+    amount: 850,
+    member: "باسم (المنسق)",
+    description: "سند دفع لشراء زينة وصيانة إنارة مجلس الجمع العائلي وتحضيرات عيد الأضحى المبارك",
+    date: "2026-05-21",
+    voucherNumber: "V-1004",
+    projectId: "proj-2"
+  },
+  {
+    id: "vtx-5",
+    type: "deposit",
+    amount: 2000,
+    member: "الأخت سارة",
+    description: "إيداع ادخاري لموازنة الخزانة العائلية ودعم صيانة ألعاب الأطفال",
+    date: "2026-05-22",
+    voucherNumber: "V-1005"
   }
 ];
 

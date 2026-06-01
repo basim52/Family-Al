@@ -1,0 +1,146 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Check if user is signed in
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Check valid string limits
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Helper functions for validating each entity shape
+    function isValidProject(data) {
+      return data.id is string && data.id.size() <= 128
+        && data.title is string && data.title.size() <= 200
+        && data.category is string && data.category.size() <= 50
+        && data.status is string && data.status.size() <= 50
+        && data.priority is string && data.priority.size() <= 20
+        && data.leader is string && data.leader.size() <= 100
+        && data.budget is number
+        && data.spent is number
+        && data.dueDate is string && data.dueDate.size() <= 50
+        && data.createdAt is string && data.createdAt.size() <= 50;
+    }
+
+    function isValidTask(data) {
+      return data.id is string && data.id.size() <= 128
+        && data.projectId is string && data.projectId.size() <= 128
+        && data.text is string && data.text.size() <= 500
+        && data.completed is bool
+        && data.assignedTo is string && data.assignedTo.size() <= 100
+        && data.priority is string && data.priority.size() <= 20;
+    }
+
+    function isValidExpense(data) {
+      return data.id is string && data.id.size() <= 128
+        && data.projectId is string && data.projectId.size() <= 128
+        && data.description is string && data.description.size() <= 300
+        && data.amount is number
+        && data.paidBy is string && data.paidBy.size() <= 100
+        && data.date is string && data.date.size() <= 50;
+    }
+
+    function isValidNotice(data) {
+      return data.id is string && data.id.size() <= 128
+        && data.title is string && data.title.size() <= 200
+        && data.content is string && data.content.size() <= 1000
+        && data.author is string && data.author.size() <= 100
+        && data.date is string && data.date.size() <= 50
+        && data.type is string && data.type.size() <= 50;
+    }
+
+    function isValidDevelopmentPlan(data) {
+      return data.id is string && data.id.size() <= 128
+        && data.title is string && data.title.size() <= 200
+        && data.description is string && data.description.size() <= 1000
+        && data.suggestedBy is string && data.suggestedBy.size() <= 100
+        && data.estimatedCost is number
+        && data.votes is list
+        && data.status is string && data.status.size() <= 50
+        && data.category is string && data.category.size() <= 100
+        && data.createdAt is string && data.createdAt.size() <= 50;
+    }
+
+    function isValidMember(data) {
+      return data.id is string && data.id.size() <= 128
+        && data.name is string && data.name.size() <= 100;
+    }
+
+    function isValidVaultTransaction(data) {
+      return data.id is string && data.id.size() <= 128
+        && data.type is string && (data.type == 'spend' || data.type == 'payment' || data.type == 'deposit')
+        && data.amount is number
+        && data.member is string && data.member.size() <= 100
+        && data.description is string && data.description.size() <= 1000
+        && data.date is string && data.date.size() <= 50
+        && data.voucherNumber is string && data.voucherNumber.size() <= 50;
+    }
+
+    // Rules matching
+    match /projects/{projectId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(projectId) && isValidProject(incoming());
+      allow update: if isSignedIn() && isValidId(projectId) && isValidProject(incoming());
+      allow delete: if isSignedIn() && isValidId(projectId);
+    }
+
+    match /tasks/{taskId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(taskId) && isValidTask(incoming());
+      allow update: if isSignedIn() && isValidId(taskId) && isValidTask(incoming());
+      allow delete: if isSignedIn() && isValidId(taskId);
+    }
+
+    match /expenses/{expenseId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(expenseId) && isValidExpense(incoming());
+      allow update: if isSignedIn() && isValidId(expenseId) && isValidExpense(incoming());
+      allow delete: if isSignedIn() && isValidId(expenseId);
+    }
+
+    match /notices/{noticeId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(noticeId) && isValidNotice(incoming());
+      allow update: if isSignedIn() && isValidId(noticeId) && isValidNotice(incoming());
+      allow delete: if isSignedIn() && isValidId(noticeId);
+    }
+
+    match /developmentPlans/{planId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(planId) && isValidDevelopmentPlan(incoming());
+      allow update: if isSignedIn() && isValidId(planId) && isValidDevelopmentPlan(incoming());
+      allow delete: if isSignedIn() && isValidId(planId);
+    }
+
+    match /members/{memberId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(memberId) && isValidMember(incoming());
+      allow update: if isSignedIn() && isValidId(memberId) && isValidMember(incoming());
+      allow delete: if isSignedIn() && isValidId(memberId);
+    }
+
+    match /vaultTransactions/{transactionId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(transactionId) && isValidVaultTransaction(incoming());
+      allow update: if isSignedIn() && isValidId(transactionId) && isValidVaultTransaction(incoming());
+      allow delete: if isSignedIn() && isValidId(transactionId);
+    }
+  }
+}

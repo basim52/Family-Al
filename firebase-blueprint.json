@@ -1,0 +1,141 @@
+{
+  "entities": {
+    "Project": {
+      "title": "Project",
+      "description": "A family house project",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the project" },
+        "title": { "type": "string", "description": "Title of the project" },
+        "description": { "type": "string", "description": "Description of the project" },
+        "category": { "type": "string", "description": "Category of project", "enum": ["maintenance", "improvement", "furnishing", "events", "emergency", "other"] },
+        "status": { "type": "string", "description": "Current status", "enum": ["planning", "active", "on_hold", "completed"] },
+        "priority": { "type": "string", "description": "Priority level", "enum": ["high", "medium", "low"] },
+        "leader": { "type": "string", "description": "Name of the project lead" },
+        "budget": { "type": "number", "description": "Budget set for the project" },
+        "spent": { "type": "number", "description": "Total spent so far" },
+        "dueDate": { "type": "string", "description": "Target completion date" },
+        "createdAt": { "type": "string", "description": "Creation timestamp or date" },
+        "photoUrl": { "type": "string", "description": "Optional background image URL" }
+      },
+      "required": ["id", "title", "category", "status", "priority", "leader", "budget", "spent", "dueDate", "createdAt"]
+    },
+    "Task": {
+      "title": "Task",
+      "description": "A task belonging to a specific project",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "projectId": { "type": "string" },
+        "text": { "type": "string" },
+        "completed": { "type": "boolean" },
+        "assignedTo": { "type": "string" },
+        "dueDate": { "type": "string" },
+        "priority": { "type": "string", "enum": ["high", "medium", "low"] }
+      },
+      "required": ["id", "projectId", "text", "completed", "assignedTo", "priority"]
+    },
+    "Expense": {
+      "title": "Expense",
+      "description": "An expense item for a project",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "projectId": { "type": "string" },
+        "description": { "type": "string" },
+        "amount": { "type": "number" },
+        "paidBy": { "type": "string" },
+        "date": { "type": "string" }
+      },
+      "required": ["id", "projectId", "description", "amount", "paidBy", "date"]
+    },
+    "Notice": {
+      "title": "Notice",
+      "description": "Notice or decision shared with the family",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "author": { "type": "string" },
+        "date": { "type": "string" },
+        "type": { "type": "string", "enum": ["announcement", "decision", "note"] }
+      },
+      "required": ["id", "title", "content", "author", "date", "type"]
+    },
+    "DevelopmentPlan": {
+      "title": "DevelopmentPlan",
+      "description": "Long-term home development ideas suggested and voted by the family",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "suggestedBy": { "type": "string" },
+        "estimatedCost": { "type": "number" },
+        "votes": { "type": "array" },
+        "status": { "type": "string", "enum": ["studying", "approved", "deferred"] },
+        "category": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "feasibility": { "type": "object" }
+      },
+      "required": ["id", "title", "description", "suggestedBy", "estimatedCost", "votes", "status", "category", "createdAt"]
+    },
+    "Member": {
+      "title": "Member",
+      "description": "A registered family member name",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" }
+      },
+      "required": ["id", "name"]
+    },
+    "VaultTransaction": {
+      "title": "VaultTransaction",
+      "description": "A financial transaction for the family vault",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for transaction" },
+        "type": { "type": "string", "enum": ["spend", "payment", "deposit"] },
+        "amount": { "type": "number", "description": "Amount in SAR" },
+        "member": { "type": "string", "description": "Family member associated with transaction" },
+        "description": { "type": "string", "description": "Transaction description or reason" },
+        "date": { "type": "string", "description": "Transaction date YYYY-MM-DD" },
+        "voucherNumber": { "type": "string", "description": "Incremental serial number e.g. V-1001" },
+        "projectId": { "type": "string", "description": "Optional referenced project" }
+      },
+      "required": ["id", "type", "amount", "member", "description", "date", "voucherNumber"]
+    }
+  },
+  "firestore": {
+    "/projects/{projectId}": {
+      "schema": "Project",
+      "description": "Collection of family house projects"
+    },
+    "/tasks/{taskId}": {
+      "schema": "Task",
+      "description": "Tasks indexed by task ID, belonging to a project"
+    },
+    "/expenses/{expenseId}": {
+      "schema": "Expense",
+      "description": "Expenses incurred, linked to a project"
+    },
+    "/notices/{noticeId}": {
+      "schema": "Notice",
+      "description": "Bulletins and boards shared across the family"
+    },
+    "/developmentPlans/{planId}": {
+      "schema": "DevelopmentPlan",
+      "description": "Long term developmental proposals and votes"
+    },
+    "/members/{memberId}": {
+      "schema": "Member",
+      "description": "Family members registered in the app"
+    },
+    "/vaultTransactions/{transactionId}": {
+      "schema": "VaultTransaction",
+      "description": "Financial ledger of the family bank / vault"
+    }
+  }
+}

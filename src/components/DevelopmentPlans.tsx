@@ -9,7 +9,7 @@ interface DevelopmentPlansProps {
   onDeletePlan: (planId: string) => void;
   onToggleVote: (planId: string, memberName: string) => void;
   onUpdateStatus: (planId: string, status: 'studying' | 'approved' | 'deferred') => void;
-  onUpdateAIFeasibility: (planId: string, feasibility: DevelopmentPlan['aiFeasibility']) => void;
+  onUpdateFeasibility: (planId: string, feasibility: DevelopmentPlan['feasibility']) => void;
 }
 
 export default function DevelopmentPlans({
@@ -19,7 +19,7 @@ export default function DevelopmentPlans({
   onDeletePlan,
   onToggleVote,
   onUpdateStatus,
-  onUpdateAIFeasibility,
+  onUpdateFeasibility,
 }: DevelopmentPlansProps) {
   const [isAdding, setIsAdding] = useState(false);
   const [title, setTitle] = useState('');
@@ -29,8 +29,14 @@ export default function DevelopmentPlans({
   const [estimatedCost, setEstimatedCost] = useState('');
   const [selectedVoter, setSelectedVoter] = useState(members[0] || '');
   
-  // Loading state for AI analysis per plan ID
-  const [analyzingPlanId, setAnalyzingPlanId] = useState<string | null>(null);
+  // Non-AI manual feasibility editing states
+  const [editingPlanFeasibilityId, setEditingPlanFeasibilityId] = useState<string | null>(null);
+  const [feasibilityScore, setFeasibilityScore] = useState<number>(85);
+  const [feasibilityEffort, setFeasibilityEffort] = useState<'low' | 'medium' | 'high'>('medium');
+  const [feasibilityPros, setFeasibilityPros] = useState<string>('');
+  const [feasibilityCons, setFeasibilityCons] = useState<string>('');
+  const [feasibilitySteps, setFeasibilitySteps] = useState<string>('');
+  const [feasibilityVerdict, setFeasibilityVerdict] = useState<string>('');
   const [error, setError] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -57,31 +63,40 @@ export default function DevelopmentPlans({
     setIsAdding(false);
   };
 
-  const handleRunAIAnalysis = async (plan: DevelopmentPlan) => {
-    setAnalyzingPlanId(plan.id);
-    try {
-      const response = await fetch('/api/ai/analyze-plan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: plan.title,
-          description: plan.description,
-          category: plan.category,
-          estimatedCost: plan.estimatedCost,
-        }),
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        onUpdateAIFeasibility(plan.id, data);
-      } else {
-        alert(data.error || 'حدث خطأ متوقع أثناء طلب دراسة جدوى جيميناي.');
-      }
-    } catch (err) {
-      alert('فشل الاتصال بالخادم الذكي لإنجاز الدراسة.');
-    } finally {
-      setAnalyzingPlanId(null);
+  const startEditingFeasibility = (plan: DevelopmentPlan) => {
+    setEditingPlanFeasibilityId(plan.id);
+    if (plan.feasibility) {
+      setFeasibilityScore(plan.feasibility.score ?? 85);
+      setFeasibilityEffort(plan.feasibility.effort ?? 'medium');
+      setFeasibilityPros(plan.feasibility.pros?.join('\n') ?? '');
+      setFeasibilityCons(plan.feasibility.cons?.join('\n') ?? '');
+      setFeasibilitySteps(plan.feasibility.steps?.join('\n') ?? '');
+      setFeasibilityVerdict(plan.feasibility.verdict ?? '');
+    } else {
+      setFeasibilityScore(85);
+      setFeasibilityEffort('medium');
+      setFeasibilityPros('توفير عالي في استهلاك الموارد\nتحديث مستدام يزيد من قيمة بيت العائلة');
+      setFeasibilityCons('تتطلب توفير ميزانية جيدة للبدء\nتتطلب التنسيق والاتفاق والالتزام بالصيانة');
+      setFeasibilitySteps('أخذ استشارات فنية وعروض أسعار أولية\nطرح الميزانية والتصويت عليها عائلياً\nشراء كافة التجهيزات والبدء بالتركيب المتقن');
+      setFeasibilityVerdict('الفكرة ممتازة وعملية وجديرة بالتنفيذ بالتوافق عائلياً.');
     }
+  };
+
+  const handleSaveFeasibility = (planId: string) => {
+    const prosList = feasibilityPros.split('\n').map(x => x.trim()).filter(Boolean);
+    const consList = feasibilityCons.split('\n').map(x => x.trim()).filter(Boolean);
+    const stepsList = feasibilitySteps.split('\n').map(x => x.trim()).filter(Boolean);
+
+    onUpdateFeasibility(planId, {
+      score: Number(feasibilityScore) || 85,
+      effort: feasibilityEffort,
+      pros: prosList,
+      cons: consList,
+      steps: stepsList,
+      verdict: feasibilityVerdict.trim() || 'الفكرة ممتازة وتساهم بشكل كبير في تحسين بيت العائلة الكبير.'
+    });
+
+    setEditingPlanFeasibilityId(null);
   };
 
   return (
@@ -96,7 +111,7 @@ export default function DevelopmentPlans({
             <h2 className="text-lg font-serif font-bold text-natural-text">خطط وتطلعات التطوير المستقبلية</h2>
           </div>
           <p className="text-xs text-natural-muted mt-1 leading-relaxed">
-            مساحة عائلية تشاركية لتسجيل الاقتراحات والمشاريع طويلة المدى لبيت العائلة وفحص واقعيتها بالذكاء الاصطناعي وثم التصويت المتبادل عليها تمهيداً لتبنيها برلمانياً.
+            مساحة عائلية تشاركية لتسجيل الاقتراحات والمشاريع طويلة المدى لبيت العائلة، ودراسة واقعيتها وجدواها وتخطيط خطوات تنفيذها باجتهاد وخبرة أفراد العائلة، ومن ثم التصويت المتبادل عليها تمهيداً لتبنيها وتعميرها.
           </p>
         </div>
 
@@ -356,32 +371,126 @@ export default function DevelopmentPlans({
                   </div>
 
                   <button
-                    onClick={() => handleRunAIAnalysis(plan)}
-                    disabled={analyzingPlanId !== null}
-                    className="px-3.5 py-1.5 bg-gradient-to-r from-natural-moss to-natural-moss/80 hover:from-natural-moss/90 hover:to-natural-moss text-white rounded-xl text-xs font-bold shadow-sm flex items-center justify-center gap-1.5 transition-all w-full sm:w-auto disabled:opacity-60 cursor-pointer text-center"
+                    onClick={() => startEditingFeasibility(plan)}
+                    className="px-3.5 py-1.5 bg-gradient-to-r from-natural-moss to-natural-moss/80 hover:from-natural-moss/95 hover:to-natural-moss text-white rounded-xl text-xs font-bold shadow-sm flex items-center justify-center gap-1.5 transition-all w-full sm:w-auto cursor-pointer text-center"
                   >
-                    {analyzingPlanId === plan.id ? (
-                      <>
-                        <Loader2 size={13} className="animate-spin text-amber-200" />
-                        <span>جاري صياغة دراسة الجدوى بذكاء...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles size={13} className="text-amber-300 animate-pulse" />
-                        <span>{plan.aiFeasibility ? 'تحديث دراسة الجدوى المعززة (جيميناي)' : 'صياغة دراسة الجدوى الذكية (جيميناي) ⚡'}</span>
-                      </>
-                    )}
+                    <CheckCircle2 size={13} className="text-amber-200" />
+                    <span>{plan.feasibility ? 'تعديل دراسة الجدوى اليدوية 📝' : 'إعداد دراسة الجدوى والتقييم يدوياً 📝'}</span>
                   </button>
                 </div>
 
-                {/* AI Feasibility study output block */}
-                {plan.aiFeasibility && (
-                  <div className="bg-natural-moss-light/30 p-5 border-t border-natural-border space-y-4 text-xs">
+                {/* Manual Feasibility Edit Form */}
+                {editingPlanFeasibilityId === plan.id && (
+                  <div className="bg-natural-moss-light/20 p-5 border-t border-natural-border space-y-4 text-xs animate-fadeIn">
+                    <div className="flex items-center gap-2 border-b border-natural-border pb-2">
+                      <Lightbulb size={16} className="text-natural-moss animate-pulse" />
+                      <h4 className="font-serif font-bold text-xs text-natural-text">إعداد وتعديل دراسة الجدوى والتقييم العائلي للمشروع يدوياً</h4>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Feasibility score & effort */}
+                      <div className="space-y-3">
+                        <div className="space-y-1">
+                          <label className="block text-[11px] font-bold text-natural-text">نسبة واقعية وجدوى الفكرة (0 - 100)%:</label>
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            value={feasibilityScore}
+                            onChange={(e) => setFeasibilityScore(Number(e.target.value))}
+                            className="w-full px-3 py-1.5 border border-natural-border bg-white rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-natural-moss text-natural-text"
+                          />
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="block text-[11px] font-bold text-natural-text">مستوى مجهود وتكاليف التنفيذ العائلي:</label>
+                          <select
+                            value={feasibilityEffort}
+                            onChange={(e) => setFeasibilityEffort(e.target.value as any)}
+                            className="w-full px-3 py-1.5 border border-natural-border bg-white rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-natural-moss text-natural-text"
+                          >
+                            <option value="low">مجهود بسيط وغير مكلف عائلياً</option>
+                            <option value="medium">مجهود متوسط لمتخصصين وفنيين</option>
+                            <option value="high">مجهود هندسي متكامل وعمالة عالية</option>
+                          </select>
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="block text-[11px] font-bold text-natural-text">توصية وقرار منفذي الخطة النهائي والحلول:</label>
+                          <textarea
+                            rows={3}
+                            placeholder="مثال: الفكرة ممتازة وتوفر راحة تامة للأحفاد عائلياً، ننصح بتوفير الميزانية للبدء فوراً"
+                            value={feasibilityVerdict}
+                            onChange={(e) => setFeasibilityVerdict(e.target.value)}
+                            className="w-full px-3 py-1.5 border border-natural-border bg-white rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-natural-moss text-natural-text"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Lists */}
+                      <div className="space-y-3">
+                        <div className="space-y-1">
+                          <label className="block text-[11px] font-bold text-emerald-800">المزايا والفوائد الأسرية (سطر لكل فائدة):</label>
+                          <textarea
+                            rows={3}
+                            placeholder="أدخل ميزة في كل سطر..."
+                            value={feasibilityPros}
+                            onChange={(e) => setFeasibilityPros(e.target.value)}
+                            className="w-full px-3 py-1.5 border border-natural-border bg-white rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-natural-moss text-natural-text leading-relaxed"
+                          />
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="block text-[11px] font-bold text-red-800">التحديات وحجم العقبات أو الكلفة (سطر لكل عقبة):</label>
+                          <textarea
+                            rows={2}
+                            placeholder="أدخل تحدي في كل سطر..."
+                            value={feasibilityCons}
+                            onChange={(e) => setFeasibilityCons(e.target.value)}
+                            className="w-full px-3 py-1.5 border border-natural-border bg-white rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-natural-moss text-natural-text leading-relaxed"
+                          />
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="block text-[11px] font-bold text-natural-moss">خطوات التنفيذ العائلية المقترحة (سطر لكل خطوة):</label>
+                          <textarea
+                            rows={3}
+                            placeholder="أدخل خطوة في كل سطر..."
+                            value={feasibilitySteps}
+                            onChange={(e) => setFeasibilitySteps(e.target.value)}
+                            className="w-full px-3 py-1.5 border border-natural-border bg-white rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-natural-moss text-natural-text leading-relaxed"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-end gap-2 border-t border-natural-border pt-3">
+                      <button
+                        type="button"
+                        onClick={() => setEditingPlanFeasibilityId(null)}
+                        className="px-3.5 py-1.5 hover:bg-natural-cream text-natural-muted rounded-xl text-[11px] font-bold transition-all cursor-pointer"
+                      >
+                        إلغاء
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleSaveFeasibility(plan.id)}
+                        className="px-4 py-1.5 bg-natural-moss text-white hover:bg-natural-moss/95 rounded-xl text-[11px] font-bold transition-all cursor-pointer shadow-sm"
+                      >
+                        حفظ التقييم والدراسة اليدوية
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* AI / Manual Feasibility study output block */}
+                {plan.feasibility && editingPlanFeasibilityId !== plan.id && (
+                  <div className="bg-natural-moss-light/30 p-5 border-t border-natural-border space-y-4 text-xs animate-fadeIn">
                     <div className="flex items-center justify-between border-b border-natural-moss/10 pb-2">
                       <div className="flex items-center gap-1.5">
-                        <Sparkles size={15} className="text-natural-moss animate-pulse" />
+                        <Lightbulb size={15} className="text-natural-moss animate-pulse" />
                         <h4 className="font-serif font-bold text-xs text-natural-text flex items-center gap-1">
-                          تقرير دراسة الجدوى للمستشار جيميناي
+                          تقرير دراسة الجدوى والتقييم العائلي المباشر
                         </h4>
                       </div>
                       
@@ -389,16 +498,16 @@ export default function DevelopmentPlans({
                         <div className="text-left">
                           <span className="text-[10px] text-natural-muted block">نسبة واقعية الجدوى:</span>
                           <span className={`text-[13px] font-black ${
-                            plan.aiFeasibility.score >= 75 ? 'text-emerald-700' : plan.aiFeasibility.score >= 50 ? 'text-amber-700' : 'text-red-700'
+                            plan.feasibility.score >= 75 ? 'text-emerald-700' : plan.feasibility.score >= 50 ? 'text-amber-700' : 'text-red-700'
                           }`}>
-                            {plan.aiFeasibility.score}%
+                            {plan.feasibility.score}%
                           </span>
                         </div>
                         <div className="h-6 w-[1px] bg-natural-border" />
                         <div className="text-left">
                           <span className="text-[10px] text-natural-muted block">مستوى الجهد:</span>
                           <span className="text-[11px] font-bold text-natural-text">
-                            {plan.aiFeasibility.effort === 'high' ? 'مجهود وعمّالة عالية' : plan.aiFeasibility.effort === 'medium' ? 'مجهود متوسط' : 'مجهود بسيط عائلي'}
+                            {plan.feasibility.effort === 'high' ? 'مجهود وعمّالة عالية' : plan.feasibility.effort === 'medium' ? 'مجهود متوسط' : 'مجهود بسيط عائلي'}
                           </span>
                         </div>
                       </div>
@@ -410,7 +519,7 @@ export default function DevelopmentPlans({
                         <div className="bg-emerald-50/50 p-3 rounded-xl border border-emerald-500/10 space-y-1">
                           <h5 className="font-bold text-[11px] text-emerald-800 flex items-center gap-1">✓ المزايا والفوائد الأسرية:</h5>
                           <ul className="list-disc list-inside space-y-1 text-neutral-650 pr-1.5 leading-relaxed">
-                            {plan.aiFeasibility.pros.map((p, i) => (
+                            {plan.feasibility.pros.map((p, i) => (
                               <li key={i}>{p}</li>
                             ))}
                           </ul>
@@ -419,7 +528,7 @@ export default function DevelopmentPlans({
                         <div className="bg-red-50/40 p-3 rounded-xl border border-red-500/10 space-y-1">
                           <h5 className="font-bold text-[11px] text-red-800 flex items-center gap-1">⚠️ التحديات والمخاطر أو الكلفة:</h5>
                           <ul className="list-disc list-inside space-y-1 text-neutral-650 pr-1.5 leading-relaxed">
-                            {plan.aiFeasibility.cons.map((c, i) => (
+                            {plan.feasibility.cons.map((c, i) => (
                               <li key={i}>{c}</li>
                             ))}
                           </ul>
@@ -430,24 +539,23 @@ export default function DevelopmentPlans({
                       <div className="bg-white p-3 rounded-xl border border-natural-border space-y-2 shadow-sm flex flex-col justify-between">
                         <div>
                           <h5 className="font-bold text-[11px] text-natural-moss flex items-center gap-1">
-                            <Layers size={11} /> خطوات التنفيذ والتحضير الهندسي المقترح:
+                            <Layers size={11} /> خطوات التنفيذ والتحضير العائلي المقترح:
                           </h5>
                           <ol className="list-decimal list-inside space-y-1 text-natural-text pr-1.5 mt-1 leading-relaxed">
-                            {plan.aiFeasibility.steps.map((s, i) => (
+                            {plan.feasibility.steps.map((s, i) => (
                               <li key={i} className="text-[11px] text-natural-text font-medium"><span className="text-natural-bronze font-mono font-bold"></span>{s}</li>
                             ))}
                           </ol>
                         </div>
 
                         <div className="mt-3 pt-2 border-t border-natural-cream">
-                          <strong className="text-[10px] text-natural-muted flex items-center gap-1">💡 توصية مستشار بيت العائلة:</strong>
+                          <strong className="text-[10px] text-natural-muted flex items-center gap-1">💡 توصية وتقييم العائلة النهائي:</strong>
                           <p className="text-[11px] text-natural-text leading-relaxed mt-0.5 whitespace-pre-line bg-natural-cream/40 p-2 rounded-lg italic">
-                            "{plan.aiFeasibility.verdict}"
+                            "{plan.feasibility.verdict}"
                           </p>
                         </div>
                       </div>
                     </div>
-
                   </div>
                 )}
 
