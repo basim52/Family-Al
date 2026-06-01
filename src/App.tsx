@@ -1383,15 +1383,8 @@ export default function App() {
                 هل أنت متأكد من رغبتك في تصفير كافة معلومات لوحة بيت العائلة؟
               </p>
               <p className="text-xs text-natural-muted leading-relaxed">
-                هذا الإجراء سيقوم بحذف وإفراغ جميع المشاريع الحالية، وجداول المهام، وفواتير الصرف العائلية، ومستجدات لوحة الإعلانات بالكامل.
+                هذا الإجراء سيقوم بحذف وإفراغ جميع المشاريع الحالية، وجداول المهام، وفواتير الصرف العائلية، ومستجدات لوحة الإعلانات بالكامل للبدء بصفحة بيضاء جديدة وعائلية بالكامل.
               </p>
-              <div className="p-3 bg-natural-cream border border-natural-border/60 rounded-xl space-y-1">
-                <h4 className="text-[10px] font-bold text-natural-text uppercase tracking-wider">الخيارات المتوفرة لك:</h4>
-                <ul className="text-[10px] text-natural-muted list-disc pr-4 space-y-1">
-                  <li>البدء الفوري من الصفر كصفحة بيضاء جديدة بالكامل لتدوين بيتكم الحقيقي.</li>
-                  <li>أو استعادة بيانات العينات الافتراضية للتجربة السريعة والتحليلات مجدداً.</li>
-                </ul>
-              </div>
             </div>
 
             {/* Footer Buttons selection */}
@@ -1401,14 +1394,7 @@ export default function App() {
                 onClick={() => setShowResetConfirm(false)}
                 className="px-4 py-2 text-xs font-semibold text-natural-muted bg-white border border-natural-border rounded-xl hover:bg-natural-cream transition-colors cursor-pointer text-center"
               >
-                إلغاء التراجع
-              </button>
-
-              <button
-                onClick={handleRestoreDefaults}
-                className="px-4 py-2 text-xs font-bold text-natural-moss bg-natural-moss-light border border-natural-moss/20 hover:bg-natural-moss-light/80 rounded-xl transition-colors cursor-pointer text-center"
-              >
-                استعادة العينات التوضيحية
+                إلغاء
               </button>
               
               <button

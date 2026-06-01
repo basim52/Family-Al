@@ -70,16 +70,7 @@ export default function MembersManager({
           </p>
         </div>
         
-        {members.length === 0 && (
-          <button
-            type="button"
-            onClick={onLoadSampleMembers}
-            className="px-4 py-2 bg-natural-moss-light text-natural-moss hover:bg-natural-border/40 border border-natural-border/80 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer self-stretch md:self-auto justify-center"
-          >
-            <RefreshCw size={13} className="animate-spin-slow" />
-            <span>استعادة الأسماء النموذجية الافتراضية</span>
-          </button>
-        )}
+
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -171,14 +162,7 @@ export default function MembersManager({
                   </p>
                 </div>
                 
-                <button
-                  type="button"
-                  onClick={onLoadSampleMembers}
-                  className="px-3.5 py-1.5 bg-white hover:bg-natural-cream text-natural-moss border border-natural-border rounded-xl text-[10px] font-bold transition-all cursor-pointer inline-flex items-center gap-1"
-                >
-                  <Sparkles size={11} className="text-natural-bronze" />
-                  <span>تعبئة سريعة بالأسماء التوضيحية للتجربة</span>
-                </button>
+
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
